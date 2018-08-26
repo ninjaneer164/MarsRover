@@ -1,19 +1,23 @@
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 
-import { ButtonModule } from 'primeng/button';
-import { DataGridModule } from 'primeng/datagrid';
-import { DropdownModule } from 'primeng/dropdown';
-import { ListboxModule } from 'primeng/listbox';
-import { PanelModule } from 'primeng/panel';
-import { RadioButtonModule } from 'primeng/radiobutton';
-
-import { AppComponent } from './app.component';
+import {
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatGridListModule,
+    MatListModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatSelectModule
+} from '@angular/material';
 
 import { DataService } from './services/data.service';
+
+import { AppComponent } from './app.component';
 
 @NgModule({
     declarations: [
@@ -22,19 +26,26 @@ import { DataService } from './services/data.service';
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        FormsModule,
-        HttpModule,
+        HttpClientModule,
+        ReactiveFormsModule,
 
-        ButtonModule,
-        DataGridModule,
-        DropdownModule,
-        ListboxModule,
-        PanelModule,
-        RadioButtonModule
+        MatButtonModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatGridListModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatRadioModule,
+        MatSelectModule
     ],
     providers: [
         DataService
     ],
-    bootstrap: [AppComponent]
+    bootstrap: [
+        AppComponent
+    ],
+    schemas: [
+        CUSTOM_ELEMENTS_SCHEMA
+    ]
 })
 export class AppModule { }

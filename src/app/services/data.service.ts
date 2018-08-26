@@ -2,66 +2,41 @@ import {
     Injectable
 } from '@angular/core';
 import {
-    Headers,
-    Http,
-    RequestOptions,
+    HttpClient,
+    HttpHeaders
+} from '@angular/common/http';
+import {
+    Response,
     ResponseContentType
 } from '@angular/http';
-import Utils from '../core/core';
+import {
+    Observable
+} from 'rxjs';
 
 @Injectable()
 export class DataService {
 
     private _apiKey: string = 'Ba6rCdp8BHmPSXSl9TISwRjlYnY2ShVRsTHmfrsv';
+    private _url: string = 'https://api.nasa.gov/mars-photos/api/v1/rovers';
 
     constructor(
-        private http: Http
-    ) {
+        private http: HttpClient
+    ) { }
+
+    public downloadImage(url: string) {
+        return this.http.get(url, { responseType: 'blob' });
     }
 
-    public downloadImage(url: string, onSuccess: Function = null, onError: Function = null): void {
-        this._get(url, ResponseContentType.Blob, onSuccess, onError);
-    }
-    public getImages(date: string, rover: string, camera: string, page: number = 1, onSuccess: Function = null, onError: Function = null): void {
-        let q = [
+    public getImages(date: string, rover: string, camera: string, page: number = 1) {
+        const q = [
             'api_key=' + this._apiKey,
             'camera=' + camera,
             'earth_date=' + date,
             'page=' + page
-        ];
+        ].join('&');
 
-        let url = 'https://api.nasa.gov/mars-photos/api/v1/rovers/' + rover + '/photos?' + q.join('&');
+        const url = `${this._url}/${rover}/photos?${q}`;
 
-        this._get(url, ResponseContentType.Json, onSuccess, onError);
-    }
-
-    private _get(url: string, responseType: ResponseContentType = ResponseContentType.Json, onSuccess: Function = null, onError: Function = null): void {
-        let options = new RequestOptions({
-            headers: new Headers({
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }),
-            responseType
-        });
-
-        (this.http
-            .get(url, options)
-            .subscribe((data) => {
-                if (onSuccess) {
-                    switch (responseType) {
-                        case ResponseContentType.Blob:
-                            onSuccess(data.blob());
-                            break;
-                        default:
-                            onSuccess(data.json());
-                            break;
-                    }
-                }
-            }, (error) => {
-                if (onError) {
-                    onError(error);
-                } else {
-                    console.error(error);
-                }
-            }));
+        return this.http.get(url);
     }
 }

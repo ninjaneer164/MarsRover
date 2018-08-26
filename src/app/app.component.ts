@@ -1,55 +1,45 @@
-import { Component } from '@angular/core';
-import { Response } from '@angular/http';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { SelectItem } from 'primeng/api';
-
-import { Camera } from './models/Camera';
 import { CameraType } from './models/enums/CameraType';
+import { DataService } from './services/data.service';
 import { EnumHelper } from './models/EnumHelper';
 import { Rover } from './models/Rover';
 import { RoverType } from './models/enums/RoverType';
-
-import { DataService } from './services/data.service';
+import { SelectItem } from './models/SelectItem';
 
 import { saveAs } from 'file-saver/FileSaver';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+    styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
-    callStatus: Map<string, boolean> = new Map<string, boolean>();
-    cameras: SelectItem[] = [];
-    cameraType: CameraType = null;
-    canSubmit: boolean = false;
-    error: string = '';
-    loading: boolean = false;
-    marsDates: SelectItem[] = [];
-    photos: string[] = [];
-    results: Map<string, any[]> = new Map<string, any[]>();
-    rovers: SelectItem[] = [];
-    rover: Rover = null;
+    public callStatus: Map<string, boolean> = new Map<string, boolean>();
+    public cameras: SelectItem[] = [];
+    public cameraType: CameraType = null;
+    public canSubmit: boolean = false;
+    public error: string = '';
+    public form: FormGroup;
+    public loading: boolean = false;
+    public marsDates: SelectItem[] = [];
+    public photos: string[] = [];
+    public results: Map<string, any[]> = new Map<string, any[]>();
+    public rovers: SelectItem[] = [];
 
     constructor(
-        private _dataService: DataService
-    ) {
+        private dataService: DataService,
+        private fb: FormBuilder
+    ) { }
 
-    }
-
-    ngDoCheck() {
-        this.canSubmit = (
-            (this.rover !== null)
-            && (this.cameraType !== null)
-        );
-    }
-    ngOnInit() {
+    public ngOnInit() {
         this.marsDates = [
-            '2017-12-15',
-            '2016-03-01',
             '2015-02-22',
+            '2016-03-01',
             '2017-07-03',
+            '2017-12-15',
             '2019-05-03'
         ].map((d) => {
             return {
@@ -136,20 +126,25 @@ export class AppComponent {
             }
         ];
 
-        this.initCameras();
+        this.form = this.fb.group({
+            rover: ['', Validators.required],
+            camera: ['', Validators.required]
+        });
     }
 
-    public download(photo: any): void {
-        this._dataService.downloadImage(photo.img_src, (blob) => {
-            let fileName = photo.img_src.split('/').pop();
+    public download(url: string): void {
+        this.dataService.downloadImage(url).subscribe((blob) => {
+            const fileName = url.split('/').pop();
             saveAs(blob, fileName);
         });
     }
+
     public initCameras(): void {
+        const r = this.form.value['rover'];
         this.cameraType = null;
         this.cameras = EnumHelper.getNames(CameraType).filter((t) => {
-            return (this.rover !== null)
-                && (this.rover.cameras.find((c) => {
+            return (r !== null)
+                && (r.cameras.find((c) => {
                     return (c.type === CameraType[t]);
                 }) !== undefined);
         }).map((t) => {
@@ -159,7 +154,8 @@ export class AppComponent {
             };
         });
     }
-    public submit(): void {
+
+    public onSubmit(): void {
         this.callStatus.clear();
         this.results.clear();
         this.photos = [];
@@ -169,12 +165,19 @@ export class AppComponent {
             this.callStatus.set(date.label, false);
             this.results.set(date.label, []);
         });
-        let rover = RoverType[this.rover.type].toLowerCase();
-        let camera = CameraType[this.cameraType].toLowerCase();
+
+        const values = this.form.value;
+
+        const rover = RoverType[values.rover.type].toLowerCase();
+        const camera = CameraType[values.camera].toLowerCase();
+
         this.marsDates.forEach((date) => {
             this._getImages(date.label, rover, camera);
         });
+
+        this.loading = true;
     }
+
     private _checkPhotos(): void {
         let done = true;
         this.callStatus.forEach((s) => {
@@ -197,21 +200,25 @@ export class AppComponent {
                 return 0;
             });
             this.photos = photos.map((p) => {
-                return p;
+                return p.img_src;
             });
+
+            this.loading = false;
         }
     }
+
     private _getImages(date: string, rover: string, camera: string): void {
         this._getImageByPage(date, rover, camera, 1);
     }
+
     private _getImageByPage(date: string, rover: string, camera: string, page: number): void {
-        this._dataService.getImages(date, rover, camera, page, (d_) => {
-            let photos = d_.photos;
+        this.dataService.getImages(date, rover, camera, page).subscribe((d: any) => {
+            const photos = d.photos;
             if ((photos !== undefined) && Array.isArray(photos)) {
                 if (photos.length === 25) {
                     this._getImageByPage(date, rover, camera, page + 1);
                 } else {
-                    let p = this.results.get(date);
+                    const p = this.results.get(date);
                     photos.forEach((photo) => {
                         if (p.find((p_) => {
                             return (p_.img_src === photo.img_src);
@@ -227,7 +234,7 @@ export class AppComponent {
                     }
                 }
             }
-        }, (e: Response) => {
+        }, (e) => {
             this.error = e.text();
             console.error(this.error);
         });

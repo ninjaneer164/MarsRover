@@ -1,53 +1,41 @@
-<div class="ui-g" [class.loading]="loading">
-    <div class="ui-g-3">
-        <div class="ui-g-2">
-            <label>Dates:</label>
-        </div>
-        <div class="ui-g-10">
-            <ul>
-                <li *ngFor="let d of marsDates">{{ d.label }}</li>
-            </ul>
-        </div>
+<form (ngSubmit)="onSubmit()" [formGroup]="form">
+    <div>
+        <label>Dates: </label>
+        <mat-list>
+            <mat-list-item *ngFor="let d of marsDates">{{ d.label }}</mat-list-item>
+        </mat-list>
     </div>
-    <div class="ui-g-3">
-        <div class="ui-g-2">
-            <label>Rover:</label>
-        </div>
-        <div class="ui-g-10">
-            <p-dropdown [options]="rovers" [(ngModel)]="rover" placeholder="Select a Rover" (onChange)="initCameras()"></p-dropdown>
-        </div>
+    <div>
+        <label>Rover: </label>
+        <mat-form-field>
+            <mat-select formControlName="rover" placeholder="Select a rover">
+                <mat-option *ngFor="let r of rovers" [value]="r.value" (click)="initCameras()">
+                    {{ r.label }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
     </div>
-    <div class="ui-g-3">
-        <div class="ui-g-2">
-            <label>Camera:</label>
-        </div>
-        <div class="ui-g-10" *ngIf="rover">
-            <div *ngFor="let c of cameras">
-                <p-radioButton name="cameras" [value]="c.value" [label]="c.label" [(ngModel)]="cameraType"></p-radioButton>
-            </div>
-        </div>
-        <div class="ui-g-10" *ngIf="!rover">
-            Choose a Rover
-        </div>
+    <div>
+        <label>Camera: </label>
+        <mat-radio-group formControlName="camera">
+            <mat-radio-button *ngFor="let c of cameras" [value]="c.value">
+                {{ c.label }}
+            </mat-radio-button>
+        </mat-radio-group>
     </div>
-    <div class="ui-g-3">
-        <button pButton type="button" label="Submit" [disabled]="!canSubmit" (click)="submit()"></button>
+    <div class="button-div">
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">Submit</button>
+        <mat-progress-spinner *ngIf="loading" color="primary" mode="indeterminate" value="50"></mat-progress-spinner>
     </div>
-</div>
-<div clsss="ui-g" *ngIf="photos.length>0">
-    <p-dataGrid [value]="photos" [paginator]="true" [rows]="20">
-        <ng-template let-photo pTemplate="item">
-            <div style="padding:3px" class="ui-g-12 ui-md-3">
-                <p-panel [header]="photo.earth_date" [style]="{'text-align':'center'}">
-                    <img [attr.src]="photo.img_src" width="200">
-                    <div>
-                        <button (click)="download(photo)">Download</button>
-                    </div>
-                </p-panel>
-            </div>
-        </ng-template>
-    </p-dataGrid>
-</div>
-<div clsss="ui-g" *ngIf="error.length>0">
-    <p>{{ error }}</p>
+</form>
+<div class="photos" *ngIf="photos.length>0">
+    <mat-card *ngFor="let p of photos">
+        <mat-card-header>
+            <mat-card-title></mat-card-title>
+        </mat-card-header>
+        <img mat-card-image [attr.src]="p">
+        <mat-card-actions>
+            <button mat-button (click)="download(p)">Download</button>
+        </mat-card-actions>
+    </mat-card>
 </div>

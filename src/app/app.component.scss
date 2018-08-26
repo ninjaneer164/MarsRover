@@ -1,0 +1,51 @@
+app-root {
+    & * {
+        box-sizing: border-box;
+    }
+}
+
+form {
+    display: block;
+    margin : 20px;
+    width  : 100%;
+
+    & > div {
+        display       : inline-block;
+        padding       : 0 20px 20px;
+        vertical-align: top;
+        width         : 100%;
+        @media only screen and (min-width: 500px) {
+            width: 40%;
+        }
+        @media only screen and (min-width: 1000px) {
+            width: 20%;
+        }
+    }
+}
+
+label {
+    font-weight: bold;
+}
+
+mat-progress-spinner {
+    margin: auto;
+}
+
+mat-radio-group {
+    display       : inline-flex;
+    flex-direction: column;
+}
+
+mat-radio-button {
+    margin: 5px 0;
+}
+
+.photos {
+    margin: 10px;
+
+    mat-card {
+        float : left;
+        margin: 10px;
+        width : 200px;
+    }
+}

@@ -3,12 +3,13 @@ import { Camera } from './Camera';
 import { Rover } from './Rover';
 
 export class Photo extends BaseModel {
-    id: number = 0;
-    sol: number = 0;
-    camera: Camera = null;
-    imgSrc: string = '';
-    earthDate: string = '';
-    rover: Rover = null;
+
+    public camera: Camera = null;
+    public earthDate: string = '';
+    public imgSrc: string = '';
+    public photoId: number = 0;
+    public rover: Rover = null;
+    public sol: number = 0;
 
     constructor(data: any = null) {
         super(data);

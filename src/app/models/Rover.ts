@@ -3,15 +3,16 @@ import { RoverType } from './enums/RoverType';
 import { Camera } from './Camera';
 
 export class Rover extends BaseModel {
-    id: number = 0;
-    type: RoverType = RoverType.Curiosity;
-    landingDate: string = '';
-    launchDate: string = '';
-    status: string = '';
-    maxSol: number = 0;
-    maxDate: string = '';
-    totalPhotos: number = 0;
-    cameras: Camera[] = [];
+
+    public type: RoverType = RoverType.Curiosity;
+    public landingDate: string = '';
+    public launchDate: string = '';
+    public status: string = '';
+    public maxSol: number = 0;
+    public maxDate: string = '';
+    public roverId: number = 0;
+    public totalPhotos: number = 0;
+    public cameras: Camera[] = [];
 
     constructor(data: any = null) {
         super(data);
